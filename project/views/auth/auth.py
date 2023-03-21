@@ -15,7 +15,7 @@ class RegisterView(Resource):
         Register new users.
         """
         data = request.json
-        if data.get('email') or data.get('password'):
+        if data.get('email') and data.get('password'):
             return user_service.create_user(email=data.get('email'), password=data.get('password')), 200
         else:
             return "Данные не корректные", 404
@@ -29,7 +29,7 @@ class LoginView(Resource):
         Login user.
         """
         data = request.json
-        if data.get('email') or data.get('password'):
+        if data.get('email') and data.get('password'):
             return user_service.check(email=data.get('email'), password=data.get('password')), 200
         else:
             return "Данные не корректные", 404
