@@ -2,6 +2,7 @@ from flask import request
 from flask_restx import Namespace, Resource
 from project.container import user_service
 from project.setup.api.models import user
+from project.tools.security import auth_required
 
 
 api = Namespace('user')
@@ -10,14 +11,15 @@ api = Namespace('user')
 @api.route('/')
 class UserView(Resource):
     @api.marshal_with(user, as_list=True, code=200, description='OK')
+    @auth_required
     def get(self):
         """
         Get user.
         """
-        token = request.headers["Authorization"].split("Bearer")[-1].strip()
-        return user_service.get_user_by_token(token)
+        return user_service.get_all()
 
     @api.marshal_with(user, as_list=True, code=200, description='OK')
+    @auth_required
     def patch(self):
         """
         Updat users.
@@ -30,6 +32,7 @@ class UserView(Resource):
 @api.route('/password')
 class PasswordView(Resource):
     @api.marshal_with(user, as_list=True, code=200, description='OK')
+    @auth_required
     def put(self):
         """
         Update password

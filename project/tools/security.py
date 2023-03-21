@@ -4,7 +4,7 @@ import datetime
 import hashlib
 
 import jwt
-from flask import current_app
+from flask import current_app, abort, request
 
 
 def __generate_password_digest(password: str) -> bytes:
@@ -16,10 +16,25 @@ def __generate_password_digest(password: str) -> bytes:
     )
 
 
+def auth_required(func):
+    def wrapper(*args, **kwargs):
+        if 'Authorization' not in request.headers:
+            abort(401)
+        data = request.headers['Authorization']
+        token = data.split("Bearer ")[-1]
+        try:
+            jwt.decode(token, key=current_app.config['SECRET_KEY'],
+                      algorithms=current_app.config['ALGORITHM'])
+        except Exception as e:
+            print("JWT Decode Exeption", e)
+            abort(401)
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
 def generate_password_hash(password: str) -> str:
     return base64.b64encode(__generate_password_digest(password)).decode('utf-8')
-
-
 
 
 def compare_passwords(password_hash, other_password):
